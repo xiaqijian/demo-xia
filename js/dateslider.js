@@ -262,10 +262,10 @@ DateSlider = Class.create({
 		}); // end each
 	},
 	// xiaxia
-  bigXia: function () {
+	Enlarge: function () {
 		this._zoom(1);
 	},
-	samllXia: function () {
+	Narrow: function () {
 		this._zoom(-1);	
 	},
 	// xiaxia

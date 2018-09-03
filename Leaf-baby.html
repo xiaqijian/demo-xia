@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>download by http://www.mb5u.com</title>
+  <title>leaf baby</title>
   <link rel="stylesheet" href="css/dateslider.css" type="text/css" />
   <style type="text/css">
     body {
@@ -115,17 +115,17 @@
       event = eventHandle.getEvent(event);
       var delta = eventHandle.getWheelDelta(event);
       if (delta>0) {
-        console.log('放大')
-        p_oDateSlider.bigXia()
+        // console.log('放大')
+        p_oDateSlider.Enlarge()
       } else {
-        console.log('缩小')
-        p_oDateSlider.samllXia()
+        // console.log('缩小')
+        p_oDateSlider.Narrow()
       }
       // console.log(delta)
     }
 
 
-    eventHandle.addEvent(document, 'mousewheel', mouseHandle);
+    eventHandle.addEvent(document.getElementById("slider"), 'mousewheel', mouseHandle);
     // eventHandle.addEvent(document, 'DOMMouseScroll', mouseHandle);
   </script>
   
