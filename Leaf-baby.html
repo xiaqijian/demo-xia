@@ -42,13 +42,68 @@
     .datebox {
       /* border:1px solid red; */
     }
+    #slider-container {
+      margin-left: 50px;
+    }
+    .date_wrap{
+      overflow:hidden;
+    }
+    .date_it{
+      float:left;
+      overflow:hidden;
+    }
+    .datebox{
+      display:block;
+      margin-top:30px;
+    }
+    div#slider-container{
+      border: 2px solid #736e6e;
+      width:800px;
+      height: 50px;
+    }
+    div#sliderbar{
+      height: 50px;
+      background-position: 0px 25px;
+    }
+    div.slideYear{
+      height:45px;
+      top: 0px;
+      border: 0px solid #e63c15;
+      border-left-width: 1px;
+      color: #e63c15;
+      /* padding-left:2px; */
+    }
+    div.slideMonth{
+      height:30px;
+      top: 15px;
+      color:#000;
+    }
+    span#lefthandle, span#righthandle {
+      top: 11px;
+      height:34px;
+    }
+    div#shiftpanel{
+      top:11px;
+      height:34px;
+      }
+    /*  */
+    .loading {
+      width: 100%;
+    background:rgba(57, 56, 56, 0);
+    height: 100%;
+    position: absolute;
+    z-index: 99;
+    color: #ffffff;
+    line-height: 44px;
+    padding-left: 30px
+    }
   </style>
 </head>
 
 <body>
   <h1>日期选择</h1>
-  <form id="dates">
-    <fieldset id="datefields">
+  <div id="dates">
+    <div id="datefields">
       <div>
         <label for="datestart">开始时间:</label> <input type="text" id="datestart">
         <label for="dateend">结束时间:</label> <input typde="text" id="dateend"><br />
@@ -58,11 +113,20 @@
         <div id="slider">
           <div id="slider-container">
             <div id="sliderbar"></div>
+            <div class="loading" id="loading" style="display: none">
+              <img src="./img/loading.gif" alt="" style="width:50px">
+            </div>
+            <div class="loading" id="loading2" style="display: none;">
+              <img src="./img/loading.gif" alt="" style="width:50px;right: 40px;position: absolute;">
+            </div>
           </div>
         </div>
       </div>
-    </fieldset>
-  </form>
+      
+      <button onClick="enlarge()">放大</button>
+      <button onClick="narrow()">缩小</button>
+    </div>
+  </div>
   <script type="text/javascript" src="js/prototype.js"></script>
   <script type="text/javascript" src="js/scriptaculous.js?load=effects,dragdrop"></script>
   <script type="text/javascript" src="js/date-en-US.js"></script>
@@ -70,24 +134,79 @@
   
   <script language="javascript">	
 
+  var xstarYear = 2018
+  var xendYear = 2019
+  window.oldSoff = 0
+  //------leaf----
+/*获取当前日期和30天之后的日期*/
+//获取当前日期
+var myDate = new Date();
+var nowY = myDate.getFullYear();
+var nowM = myDate.getMonth()+1;
+var nowD = myDate.getDate();
+var enddate = nowY+"-"+(nowM<10 ? "0" + nowM : nowM)+"-"+(nowD<10 ? "0"+ nowD : nowD);//当前日期
+console.log(enddate)
+//获取三十天前日期
+var lw = new Date(myDate - 1000 * 60 * 60 * 24 * 30);//最后一个数字30可改，30天的意思
+var lastY = lw.getFullYear();
+var lastM = lw.getMonth()+1;
+var lastD = lw.getDate();
+var startdate=lastY+"-"+(lastM<10 ? "0" + lastM : lastM)+"-"+(lastD<10 ? "0"+ lastD : lastD);//三十天之前日期
+console.log(startdate)
+
+/*获取当前日期开始*/
+Date.prototype.format = function (format) {
+       var args = {
+           "M+": this.getMonth() + 1,
+           "d+": this.getDate(),
+           "h+": this.getHours(),
+           "m+": this.getMinutes(),
+           "s+": this.getSeconds(),
+           "q+": Math.floor((this.getMonth() + 3) / 3),  //quarter
+           "S": this.getMilliseconds()
+       };
+       if (/(y+)/.test(format))
+           format = format.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+       for (var i in args) {
+           var n = args[i];
+           if (new RegExp("(" + i + ")").test(format))
+               format = format.replace(RegExp.$1, RegExp.$1.length == 1 ? n : ("00" + n).substr(("" + n).length));
+       }
+       return format;
+   };
+
+//调用方法
+//hh:mm:ss:S
+/*alert(new Date().format("yyyy-MM-dd "));*/
+
+/*alert(new Date().format("yyyy-MM-dd hh:mm:ss"));*/
+/*获取当前日期结束*/
+//------leaf----
+
     /* Dateslider options */
     l_oOptions = {
       dragHandles: true,
       dayWidth: 1,
-      dateFormat: 'MM-d-yyyy h:mm',
+      dateFormat: 'MM-d-yyyy HH:mm',
       zoom: true
     }
-
+    
     /* Create the dateslider */
-    p_oDateSlider = new DateSlider('sliderbar', '2009-May-01 10:30 PM', '2009-May-31 10:39 PM', 2007, 2009, l_oOptions);
+    p_oDateSlider = new DateSlider('sliderbar',startdate,enddate, xstarYear, xendYear, l_oOptions);
     p_oDateSlider.attachFields($('datestart'), $('dateend'));
 
     /* Show the dateslider onfocus */
     [$('datestart'), $('dateend')].each(function (e) {
       e.observe('focus', function () {
-
+          
       }); // end focus
     }); // end each
+    function enlarge (ev) {
+      p_oDateSlider.Enlarge()
+    }
+    function narrow (ev) {
+      p_oDateSlider.Narrow()
+    }
   //  function bi () {
   //    p_oDateSlider.bigXia()
   //  }
@@ -123,8 +242,51 @@
       }
       // console.log(delta)
     }
+    
+    window.nextYear = function () {
+      // console.log(3333)
+
+      window.oldSoff = $('sliderbar').offsetLeft
+      // xstarYear = xstarYear-1
+      xendYear = xendYear+1
+      // console.log(xstarYear)
+      document.getElementById('loading2').style.display = 'block' 
+      // console.log(xendYear)
+      document.getElementById('sliderbar').innerHTML = ""
+      setTimeout(function () {
+        document.getElementById('loading2').style.display = 'none'
+        p_oDateSlider.localtime($('datestart'), $('dateend'))
+        var newtime = JSON.parse(localStorage.getItem('loacaltime'));
+        p_oDateSlider = new DateSlider('sliderbar', newtime.pre, newtime.next, xstarYear, xendYear, l_oOptions);
+        p_oDateSlider.attachFields($('datestart'), $('dateend'));
+        p_oDateSlider.eartime($('datestart'), $('dateend'))
+      }, 500)
+     
+    }
+    window.preYear = function () {
+      // console.log(3333)
+      window.oldSoff = 0
+      xstarYear = xstarYear-1
+      document.getElementById('loading').style.display = 'block'       
+
+      // xendYear = xendYear-1
+      // console.log(xstarYear)
+      // console.log(xendYear)
+      document.getElementById('sliderbar').innerHTML = ""
+      
+      setTimeout(function() {
+        document.getElementById('loading').style.display = 'none'
+        p_oDateSlider.localtime($('datestart'), $('dateend'))
+        var newtime = JSON.parse(localStorage.getItem('loacaltime'));
+        p_oDateSlider = new DateSlider('sliderbar', newtime.pre, newtime.next, xstarYear, xendYear, l_oOptions);
+        p_oDateSlider.attachFields($('datestart'), $('dateend'));    
+        // p_oDateSlider.eartime($('datestart'), $('dateend'))
+      },500)
+    }
 
 
+  
+    
     eventHandle.addEvent(document.getElementById("slider"), 'mousewheel', mouseHandle);
     // eventHandle.addEvent(document, 'DOMMouseScroll', mouseHandle);
   </script>

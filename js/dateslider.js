@@ -4,6 +4,7 @@ var sliderReference;
 /* Extend the date element a bit */
 Date.prototype.getDiffDays = function(p_oDate) {
 	p_iOneDay = 1000*60*60*24;
+	// console.log(p_oDate)
 	return Math.ceil((p_oDate.getTime()-this.getTime())/(p_iOneDay));
 }
 /* www.mb5u.com */
@@ -28,13 +29,16 @@ DateSlider = Class.create({
 		/* The fields (set later) */
 		this.oStartField = null;
 		this.oEndField = null;
-	
+		// x
+		this.j = null
+		// x
 		/* Create globally available reference */
 		sliderReference = this;
 		
 		this.sliderBarMargin = 2;
 		
 		/* Set the start/end dates */
+		// console.log(p_sStartDate)
 		l_oStartDate = Date.parse(p_sStartDate);
 		l_oEndDate = Date.parse(p_sEndDate);
 		
@@ -57,7 +61,7 @@ DateSlider = Class.create({
 		if (this.options.dragHandles == false) this.numberOfDays = this.oStartDate.getDiffDays(this.oEndDate);
 		this.centerDate = Date.today();
 		if (this.options.centerDate != null) this.centerDate = Date.parse(options['centerDate']);
-		
+		console.log(l_oStartDate)
 		this.iLeftOffsetLH = this.barStartDate.getDiffDays(l_oStartDate)*this.options.dayWidth;
 		this.iLeftOffsetRH = this.barStartDate.getDiffDays(l_oEndDate)*this.options.dayWidth;			
 		
@@ -83,14 +87,16 @@ DateSlider = Class.create({
 			
 			divWidth = sliderDayDivWidth*iDays;
 			l_oDiv = new Element('div', {className : 'slideYear', style : 'width:'+(divWidth-1)+'px'}).update(l_iYear);
-			
+			// console.log(l_iYear)
 			iTotalDays = 0;
 			(12).times(function(e) {
 				monthDivWidth = l_oData.getDaysInMonth()*sliderReference.options.dayWidth;
 				l_oMonthDiv = new Element('div', {className : 'slideMonth',style : 'width:'+(monthDivWidth)+'px; left:'+iTotalDays+'px'});
+				// console.log(l_oMonthDiv)
 				if(e==0) { 
 					$(l_oMonthDiv).addClassName('firstMonth');
 				} else {
+					// console.log(l_oData.toString("MMM"))
 					$(l_oMonthDiv).update(l_oData.toString("MMM"));
 				}
 				l_oDiv.appendChild(l_oMonthDiv);
@@ -106,7 +112,10 @@ DateSlider = Class.create({
 		l_shiftLeft = 0-this.barStartDate.getDiffDays(this.centerDate)*sliderDayDivWidth  +l_iCorrection;
 		l_oFinishDate = Date.parse((this.iEndYear+1)+'-01-01');
 		iBarWidth =this.barStartDate.getDiffDays(l_oFinishDate);
-	    $(p_sBarId).setStyle({left : l_shiftLeft+'px', width : iBarWidth*sliderDayDivWidth+'px'}); 
+		// x
+        // console.log(l_shiftLeft)
+		// x
+	    $(p_sBarId).setStyle({left : window.oldSoff +'px', width : iBarWidth*sliderDayDivWidth+'px'}); 
 		
 		/* Make the background grid draggable */
 	    if (this.options.dragBar) {    
@@ -114,21 +123,42 @@ DateSlider = Class.create({
 			  							  constraint:'horizontal',
 										  starteffect : '',
 										  endeffect:'',
+										  onEnd : this._bgStopDragBar.bindAsEventListener(this),
 										  zindex:'0'});
 		}
 	},
+	_bgStopDragBar: function () {
+	//    console.log($('sliderbar').offsetLeft)
+	   var i = $('sliderbar').offsetLeft 
+	  
+	   if(i == 0) {
+
+		   window.preYear()
+	   }
+	   if(i == this.j) {
+		  
+		  window.nextYear()
+		  
+	   }
+	   this.j = $('sliderbar').offsetLeft
+	},
 	_bgStopDrag : function() {
 		/* Move? */
+		// console.log('dddddd')
 		l_iDiff = $('righthandle').offsetLeft + ($('sliderbar').offsetLeft-600);
 		
 		if(l_iDiff > -2) {
 		/* Move the bgbar */
 		var l_iLeft = '-'+($('righthandle').offsetLeft-590)+'px';
+		
 		new Effect.Morph('sliderbar', { style: {left: l_iLeft}, duration:.5});
 		}	
 		
 		/* Call the callback function */
-		if(sliderReference.options.onEnd) sliderReference.options.onEnd();	    
+		if(sliderReference.options.onEnd) {
+			sliderReference.options.onEnd()
+			// console.log(333399)
+		};	    
   	},
 	createHandles : function(p_sBarId, p_sStartDate, p_sEndDate) {
 		/* Create the left and the right handle */
@@ -162,7 +192,8 @@ DateSlider = Class.create({
 		  }		 
 	},
 	dragShiftPanel : function() { 
-  		/* Set the handlers while dragging the shiftpanel */
+		  /* Set the handlers while dragging the shiftpanel */
+		// console.log(333)
   		$('lefthandle').setStyle({left: ($('shiftpanel').offsetLeft-sliderReference.sliderBarMargin)+'px'});
   		$('righthandle').setStyle({left: ($('shiftpanel').offsetLeft + $('shiftpanel').offsetWidth-sliderReference.sliderBarMargin)+'px'});						
   		sliderReference._setDates();
@@ -249,7 +280,7 @@ DateSlider = Class.create({
 	attachFields : function (p_oStartField, p_oEndField) {
 		this.oStartField = p_oStartField;
 		this.oEndField = p_oEndField;
-		
+		// console.log(this.oStartDate)
 		p_oStartField.setValue(this.oStartDate.toString(this.options.dateFormat));
 		p_oEndField.setValue(this.oEndDate.toString(this.options.dateFormat));
 		
@@ -261,7 +292,25 @@ DateSlider = Class.create({
 			}); // end observe
 		}); // end each
 	},
+
 	// xiaxia
+	localtime: function (p_oStartField, p_oEndField) {
+		var localtime = {
+			'pre': p_oStartField.getValue(),
+			'next': p_oEndField.getValue()
+		}
+		
+		localStorage.setItem('loacaltime', JSON.stringify(localtime))
+	},
+	eartime: function (p_oStartField, p_oEndField) {
+		var newtime = JSON.parse(localStorage.getItem('loacaltime'));
+	
+		p_oStartField.setValue(newtime.pre);
+		p_oEndField.setValue(newtime.next);
+		l_oStartDate = Date.parse(newtime.pre);
+		l_oEndDate = Date.parse(newtime.next);
+		sliderReference.morphTo(l_oStartDate, l_oEndDate);
+	},
 	Enlarge: function () {
 		this._zoom(1);
 	},
@@ -279,7 +328,12 @@ DateSlider = Class.create({
 		this._zoom(-1);	
 	},
 	_zoom : function(p_iFactor) {
-		if((this.options.dayWidth+p_iFactor) < 1) return;
+		if((this.options.dayWidth+p_iFactor) < 1) {
+			// console.log('到头了')
+			window.nextYear()
+			// this.iEndYear = this.iEndYear +1
+			return
+		}
 		/* Get the current dates */
 		l_iLeftPos = $('lefthandle').offsetLeft/this.options.dayWidth;
 		l_iRightPos = $('righthandle').offsetLeft/this.options.dayWidth;
@@ -300,34 +354,34 @@ DateSlider = Class.create({
 		this.centerBar();	
 	},
 	setZoom : function() {
-		l_oZoomIn = new Element('a', {className : 'zoom', href : '#'})
-							   .update('zoom in')
-							   .observe('click', function(ev) {
-							   		sliderReference.zoomIn();
-							   		ev.stop();
-							   });
+		// l_oZoomIn = new Element('a', {className : 'zoom', href : '#'})
+		// 					   .update('')
+		// 					   .observe('click', function(ev) {
+		// 					   		sliderReference.zoomIn();
+		// 					   		ev.stop();
+		// 					   });
 		
-		l_oZoomOut = new Element('a', {className : 'zoom', href : '#'})
-							   .update('zoom out')
-							   .observe('click', function(ev) {
-							   		sliderReference.zoomOut();
-							   		ev.stop();
-							   });		
+		// l_oZoomOut = new Element('a', {className : 'zoom', href : '#'})
+		// 					   .update('')
+		// 					   .observe('click', function(ev) {
+		// 					   		sliderReference.zoomOut();
+		// 					   		ev.stop();
+		// 					   });		
 		
 		
-		l_oZoomPanel = new Element('div', {className : 'zoomPanel'});
+		// l_oZoomPanel = new Element('div', {className : 'zoomPanel'});
 				
-		l_oZoomPanel.appendChild(l_oZoomIn);
-		l_oZoomPanel.appendChild(document.createTextNode(' | '))
-		l_oZoomPanel.appendChild(l_oZoomOut);
+		// l_oZoomPanel.appendChild(l_oZoomIn);
+		// // l_oZoomPanel.appendChild(document.createTextNode(' | '))
+		// l_oZoomPanel.appendChild(l_oZoomOut);
 		
-		$(this.barId).up().appendChild(l_oZoomPanel);
+		// $(this.barId).up().appendChild(l_oZoomPanel);
 	},
 	centerBar : function() {
 	
 		var l_iPanelWidth = this.iLeftOffsetRH-this.iLeftOffsetLH;
 		var l_iShiftContainerWidth = $('sliderbar').up().getWidth();
-		
+		console.log(3333333)
 		$('sliderbar').setStyle({left:(this.iLeftOffsetLH-(2*this.iLeftOffsetLH)+(l_iShiftContainerWidth/2)-(l_iPanelWidth/2))+'px'});
 	}
 });
